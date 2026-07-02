@@ -1,27 +1,21 @@
-FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+FROM python:3.12-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 \
-    python3.12-venv \
-    python3.12-dev \
-    python3-pip \
     git \
     curl \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
-
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
+# CPU-версия PyTorch — обрати внимание на index-url
 RUN python -m pip install --no-cache-dir \
     torch==2.3.1 \
     torchvision==0.18.1 \
     torchaudio==2.3.1 \
-    --index-url https://download.pytorch.org/whl/cu124
+    --index-url https://download.pytorch.org/whl/cpu
 
 RUN python -m pip install --no-cache-dir \
     numpy \
@@ -35,9 +29,6 @@ RUN python -m pip install --no-cache-dir \
     safetensors
 
 WORKDIR /workspace
-
 VOLUME ["/workspace", "/models"]
-
 EXPOSE 8888
-
 CMD ["python"]
